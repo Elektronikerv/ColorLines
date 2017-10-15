@@ -1,8 +1,5 @@
 package sample;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -18,7 +15,6 @@ import java.util.Random;
      private static Ball clickedBall;
      private static boolean isClicked;
      private static int size = 9;
-     private static boolean isLosed = false;
      private static Ball cells[][] = new Ball[size][size];
      private static Ball cellsToDelete[] = new Ball[size+1];
      public static int score =  0;
@@ -37,7 +33,7 @@ import java.util.Random;
 
 
         setEvents();
-        generateBalls(4);
+        generateBalls(10);
         return grid;
     }
 
@@ -88,12 +84,11 @@ import java.util.Random;
         while(!ball.isEmpty()) {
             ball = cells[random.nextInt(size)][random.nextInt(size)];
             attempt++;
-            if(attempt > size*size-2) {
-                isLosed = true;
+            if(attempt > size*size*2) {
                 return;
             }
         }
-        System.out.println("new" + attempt);
+
         int randCol = random.nextInt(5);
         Paint color = null;
         switch (randCol) {
@@ -112,15 +107,14 @@ import java.util.Random;
     }
 
      public static boolean isLosed() {
-         for(int i=0; i < 9; i++) {
-             for(int j=0; j < 9; j++) {
+         for(int i=0; i < size; i++) {
+             for(int j=0; j < size; j++) {
                  if(cells[i][j].getColor() == Color.WHITE) {
                      return false;
                  }
              }
          }
-         Alert a = new Alert(Alert.AlertType.CONFIRMATION);
-         a.show();
+
          return true;
      }
 
@@ -131,7 +125,7 @@ import java.util.Random;
         for(int i=0; i < quentity; i++)
             generateBall();
     }
-//---------------------------------check
+
     private static boolean isSameColor(Ball ball1, Ball ball2) {
         if(ball1.getColor()!= Color.WHITE && ball2.getColor() != Color.WHITE) {
             if (ball1.getColor() == ball2.getColor())
@@ -150,12 +144,12 @@ import java.util.Random;
 
 
      static void erase() {
-         for(int i=0; i < 10; i++)
+         for(int i=0; i < cellsToDelete.length; i++)
              cellsToDelete[i] = null;
      }
 
      private static boolean isEmpty() {
-         for(int i=0; i < 10; i++) {
+         for(int i=0; i < cellsToDelete.length; i++) {
              if(cellsToDelete[i] != null)
                  return false;
          }
@@ -176,7 +170,7 @@ import java.util.Random;
                      cellsToDelete[count++] = cells[i][j+1];
                  }
                  else {
-                     if(count >=3) {                           //balls to dissapear
+                     if(count >=5) {                           //balls to dissapear
                          deleteBalls();
                          score+=count;
                      }
@@ -200,7 +194,7 @@ import java.util.Random;
                  } else if (((j + 1) < size) && isSameColor(cells[j][i], cells[j + 1][i])) {
                      cellsToDelete[count++] = cells[j + 1][i];
                  } else {
-                     if (count >= 3) {                           //balls to dissapear
+                     if (count >= 5) {                           //balls to dissapear
                          deleteBalls();
                          score += count;
                      }
@@ -215,8 +209,8 @@ import java.util.Random;
 
      private static boolean findPath(Ball cell) {
          int arr[][] = new int[size][size];
-         for(int i=0; i < 9; i++)  {
-             for(int j=0;j < 9; j++) {
+         for(int i=0; i < size; i++)  {
+             for(int j=0;j < size; j++) {
                  if(cells[i][j].getColor() == Color.WHITE) {       	 //copy array
                      arr[i][j] = -1;                              //-1 empty cell
                  }
@@ -229,19 +223,19 @@ import java.util.Random;
          boolean isFound = false;
 
          while(!isFound) {
-             for(int i=0; i < 9; i++) {
-                 for(int j=0; j < 9; j++) {
+             for(int i=0; i < size; i++) {
+                 for(int j=0; j < size; j++) {
                      if(arr[i][j] == n) {
                          if(j-1 >= 0 && arr[i][j-1] == -1 ) {
                              arr[i][j-1] = n+1;
                          }
-                         if(j+1 < 9 && arr[i][j+1] == -1 ) {
+                         if(j+1 < size && arr[i][j+1] == -1 ) {
                              arr[i][j+1] = n+1;
                          }
                          if(i-1 >= 0 && arr[i-1][j] == -1 ) {
                              arr[i-1][j] = n+1;
                          }
-                         if(i+1 < 9 && arr[i+1][j] == -1 ) {
+                         if(i+1 < size && arr[i+1][j] == -1 ) {
                              arr[i+1][j] = n+1;
                          }
                      }
@@ -251,18 +245,11 @@ import java.util.Random;
              if(arr[cell.getY()][cell.getX()] != -1){
                  return true;
              }
-             if(n > 81) {
-                 System.out.println("No way,punk");
+             if(n > size*size) {
                  return false;
              }
          }
          return true;
-     }
-
-     public static void printArr() {
-         System.out.print("Arr To delete :");
-         for(Ball b : cellsToDelete)
-             System.out.println(b);
      }
 
  }
