@@ -1,20 +1,18 @@
 package sample;
 
-import com.sun.javafx.tk.Toolkit;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 public class Main extends Application {
 
@@ -43,23 +41,24 @@ public class Main extends Application {
         stage.setResizable(false);
         stage.show();
 
-        Timeline t = new Timeline((new KeyFrame(Duration.seconds(0.1),
-                (event) -> {
-                        i.set(Controller.getScore());
-                    }
-
-        )));
-        t.setCycleCount(Animation.INDEFINITE);
-        t.play();
-
 
         Thread checkThread = new Thread(()-> {
-            while(true) {
+            final boolean[] b = {false};
+            while(!b[0]) {
                 Controller.checkHorizontal();
                 Controller.checkVertical();
 
+                Platform.runLater(() -> {
+                    i.set(Controller.getScore());
+                    b[0] = Controller.isLosed();
+                    if(b[0]) {
+                        Alert a = new Alert(Alert.AlertType.CONFIRMATION);
+                        a.show();
+                    }
+                });
+
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(300);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                     break;
