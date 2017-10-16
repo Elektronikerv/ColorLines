@@ -1,4 +1,4 @@
-package sample;
+
 
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
@@ -8,20 +8,21 @@ public class Ball {
     private int x;
     private int y;
     private Circle shape;
-
-    public int getX() {
-        return x;
-    }
-    public int getY() {
-        return y;
-    }
-
+    
     public Ball(int x, int y, Circle shape) {
         this.x = x;
         this.y = y;
         this.shape = shape;
-
     }
+    
+    public int getX() {
+        return x;
+    }
+    
+    public int getY() {
+        return y;
+    }
+    
     public Circle getShape() {
         return shape;
     }
