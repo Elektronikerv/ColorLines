@@ -1,3 +1,3 @@
 # ColorLines
-Implementation of Color Lines game
+Implementation of Color Lines game using javaFX
 
