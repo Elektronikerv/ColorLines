@@ -1,5 +1,5 @@
 package sample;
-import javafx.scene.control.Alert;
+import javafx.geometry.Insets;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
@@ -8,19 +8,35 @@ import javafx.scene.shape.Circle;
 
 import java.util.Random;
 
- public  class Controller {
+ public  class Game {
 
-     private final static int RADIUS = 25;
+     private final static  int RADIUS = 25;
+     private final static int PADDING = 1;
+     private final static int MIN_BALLS_TO_DISAPPEAR = 5;
+  
+     private Ball clickedBall;
+     private boolean isClicked;
+     private int size;
+     private Ball cells[][];
+     private Ball cellsToDelete[];
+     private int score =  0;
 
-     private static Ball clickedBall;
-     private static boolean isClicked;
-     private static int size = 9;
-     private static Ball cells[][] = new Ball[size][size];
-     private static Ball cellsToDelete[] = new Ball[size+1];
-     public static int score =  0;
+     public Game() {
+        this(9);
+    }
 
-    public static GridPane initMap() {
+    public Game(int size) {
+        this.size = size;
+        cells = new Ball[size][size];
+        cellsToDelete = new Ball[size+1];
+    }
+
+    public  GridPane initMap() {
         GridPane grid = new GridPane();
+        grid.setPadding(new Insets(PADDING));
+        grid.setHgap(PADDING);
+        grid.setVgap(PADDING);
+
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 Circle circle = new Circle(RADIUS);
@@ -30,31 +46,26 @@ import java.util.Random;
                 cells[i][j] = new Ball(j, i, circle);
             }
         }
-
-
         setEvents();
-        generateBalls(10);
+        generateBalls(3);
         return grid;
     }
 
-    public static int getScore() {
+    public  int getScore() {
         return score;
     }
 
-    private static void setEvents () {
+    private  void setEvents () {
         for(int i = 0; i < size; i++) {
             for(int j = 0; j < size;j++) {
                 final int finalI = i;
                 final int finalJ = j;
-                cells[i][j].getShape().setOnMouseClicked((MouseEvent event) -> {
-
-                    move(cells[finalI][finalJ]);
-                });
+                cells[i][j].getShape().setOnMouseClicked((MouseEvent event) -> move(cells[finalI][finalJ]));
             }
         }
     }
 
-    private static void move(Ball ball) {
+    private  void move(Ball ball) {
         if(isClicked && ball.isEmpty() && findPath(ball)) {
 
             clickedBall.setOpacity(1);
@@ -77,16 +88,14 @@ import java.util.Random;
         }
     }
 
-    private static  void generateBall() {
+    private   void generateBall() {
         Random random = new Random(System.currentTimeMillis());
         Ball ball = cells[random.nextInt(size)][random.nextInt(size)];
         int attempt = 0;
         while(!ball.isEmpty()) {
             ball = cells[random.nextInt(size)][random.nextInt(size)];
-            attempt++;
-            if(attempt > size*size*2) {
+            if(attempt++ > size*size*5)
                 return;
-            }
         }
 
         int randCol = random.nextInt(5);
@@ -106,27 +115,25 @@ import java.util.Random;
         ball.setColor(color);
     }
 
-     public static boolean isLosed() {
+     public  boolean isLosed() {
          for(int i=0; i < size; i++) {
              for(int j=0; j < size; j++) {
-                 if(cells[i][j].getColor() == Color.WHITE) {
+                 if(cells[i][j].getColor() == Color.WHITE)
                      return false;
-                 }
              }
          }
-
          return true;
      }
 
 
 
 
-    private static void generateBalls(int quentity) {
+    private  void generateBalls(int quentity) {
         for(int i=0; i < quentity; i++)
             generateBall();
     }
 
-    private static boolean isSameColor(Ball ball1, Ball ball2) {
+    private  boolean isSameColor(Ball ball1, Ball ball2) {
         if(ball1.getColor()!= Color.WHITE && ball2.getColor() != Color.WHITE) {
             if (ball1.getColor() == ball2.getColor())
                 return true;
@@ -134,7 +141,7 @@ import java.util.Random;
         return false;
     }
 
-     static void  deleteBalls() {
+      void  deleteBalls() {
          int i=0;
          while(cellsToDelete[i] != null) {
              cellsToDelete[i].setColor(Color.WHITE);
@@ -142,13 +149,12 @@ import java.util.Random;
          }
      }
 
-
-     static void erase() {
+     private void erase() {
          for(int i=0; i < cellsToDelete.length; i++)
              cellsToDelete[i] = null;
      }
 
-     private static boolean isEmpty() {
+     private  boolean isEmpty() {
          for(int i=0; i < cellsToDelete.length; i++) {
              if(cellsToDelete[i] != null)
                  return false;
@@ -156,7 +162,7 @@ import java.util.Random;
          return true;
      }
 
-     public static void checkHorizontal() {
+     public  void checkHorizontal() {
          int count=0;
          for(int i=0; i < size; i++) {
              for(int j=0; j < size; j++) {
@@ -170,7 +176,7 @@ import java.util.Random;
                      cellsToDelete[count++] = cells[i][j+1];
                  }
                  else {
-                     if(count >=5) {                           //balls to dissapear
+                     if(count >= MIN_BALLS_TO_DISAPPEAR) {                           //balls to dissapear
                          deleteBalls();
                          score+=count;
                      }
@@ -183,7 +189,7 @@ import java.util.Random;
          }
      }
 
-     public static void checkVertical() {
+     public  void checkVertical() {
          int count = 0;
          for (int i = 0; i < size; i++) {
              for (int j = 0; j < size; j++) {
@@ -194,7 +200,7 @@ import java.util.Random;
                  } else if (((j + 1) < size) && isSameColor(cells[j][i], cells[j + 1][i])) {
                      cellsToDelete[count++] = cells[j + 1][i];
                  } else {
-                     if (count >= 5) {                           //balls to dissapear
+                     if (count >= MIN_BALLS_TO_DISAPPEAR) {                           //balls to dissapear
                          deleteBalls();
                          score += count;
                      }
@@ -207,7 +213,7 @@ import java.util.Random;
          }
      }
 
-     private static boolean findPath(Ball cell) {
+     private  boolean findPath(Ball cell) {
          int arr[][] = new int[size][size];
          for(int i=0; i < size; i++)  {
              for(int j=0;j < size; j++) {
@@ -251,5 +257,8 @@ import java.util.Random;
          }
          return true;
      }
-
+  
+     public int getSize() {
+         return size;
+     }
  }
