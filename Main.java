@@ -20,7 +20,7 @@ public class Main extends Application {
 
         Game game = new Game();
         initStage(game, stage, game.getSize());
-        stage.setOnCloseRequest(event -> Platform.exit());
+        stage.setOnCloseRequest(event -> System.exit(0));
 
 
         Thread checkingThread = new Thread(()-> {
